@@ -1,4 +1,5 @@
 # CSCI425
+
 Python Machine Learning Project
 
 ## Project Members
@@ -20,3 +21,8 @@ the Mozilla Common Voice Data Set. The model produced will be
 useful primarily in helping transgender users to learn to use
 their voices in ways that match their proper gender, as the
 model will be able to provide realtime feedback.
+
+# Containerization
+
+To enter the included container, run `make docker` or
+`make podman`.
