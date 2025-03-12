@@ -18,5 +18,6 @@ podman:
 	podman build --tag 'arbfn' .
 	podman run \
 		--mount type=bind,source="${cwd}",target="/host" \
+		--mount type=bind,source="/",target="/hostroot" \
 		-i \
 		-t arbfn:latest \
