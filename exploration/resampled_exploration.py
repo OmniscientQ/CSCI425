@@ -43,8 +43,8 @@ def main() -> int:
 
     plt.clf()
     sns.histplot(validated['duration[ms]'] / 1_000.0)
-    plt.xlabel('Index')
-    plt.ylabel('Duration (seconds)')
+    plt.xlabel('Duration (seconds)')
+    plt.ylabel('Count')
     plt.savefig('durations.png')
 
     for _, row in validated.iterrows():
