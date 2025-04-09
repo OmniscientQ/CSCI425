@@ -6,7 +6,7 @@ from scipy.signal import find_peaks
 import csv
 
 # === Configuration ===
-input_folder = "./"  # <-- change this
+input_folder = "./clips/"  # <-- change this
 output_folder = os.path.join(input_folder, "csv")
 os.makedirs(output_folder, exist_ok=True)
 
@@ -18,7 +18,7 @@ speed_of_sound = 343  # m/s
 
 # === Processing loop ===
 for filename in os.listdir(input_folder):
-    if filename.lower().endswith(".wav"):
+    if filename.lower().endswith(".mp3"):
         filepath = os.path.join(input_folder, filename)
         print(f"Processing: {filename}")
 
