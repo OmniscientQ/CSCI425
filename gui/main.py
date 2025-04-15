@@ -4,7 +4,7 @@ Jordan Dehmel, 2025, MIT license
 '''
 
 from typing import Optional
-from os import path
+from os import path, remove
 from tkinter import filedialog
 from matplotlib import pyplot as plt
 import numpy as np
@@ -195,11 +195,15 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
 
         def on_file_load_button_pressed():
             input_filepath = filedialog.askopenfilename(
-                filetypes=[('Voice Clips', '*.mp3')])
+                filetypes=[
+                    ('mp3 files', '*.mp3'),
+                    ('wav files', '*.wav')])
 
             self.__clear()
             self.Label(text='Processing...')
             self.__results_page(audio_to_png(input_filepath))
+
+        self.Label(text='Load existing audio clip')
 
         self.Button(
             text='Select file',
@@ -222,26 +226,38 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
             self.__clear()
             self.Label(text='Recording...')
 
-            audio_data = np.array([])
+            audio_data = []
 
-            def callback(indata, _, __, ___, ____):
+            def callback(indata, _, __, ___):
                 nonlocal audio_data
-                audio_data += indata
+                audio_data.append(indata)
 
-            strm = sd.Stream(channels=1, blocksize=2048,
-                             callback=callback)
+            with sd.InputStream(callback=callback) as strm:
 
-            def on_stop_button_press():
-                strm.close()
-                recording_path = 'recorded.wav'
+                def on_stop_button_press():
+                    nonlocal audio_data
 
-                print(len(audio_data))
+                    strm.close()
+                    recording_path = 'recorded.wav'
 
-                write(recording_path, 44100, audio_data)
-                self.__results_page(audio_to_png(recording_path))
+                    audio_data = np.concat(audio_data)
+                    write(recording_path, 44100, audio_data)
 
-            self.Button(text='Stop recording',
-                        command=on_stop_button_press)
+                    image_path = audio_to_png(recording_path)
+
+                    self.__results_page(image_path)
+
+                    # Clean up local data
+                    if path.exists(recording_path):
+                        remove(recording_path)
+
+                    if path.exists(image_path):
+                        remove(image_path)
+
+                self.Button(text='Stop recording',
+                            command=on_stop_button_press)
+
+        self.Label(text='Analyze new recording')
 
         self.Button(text='Start recording',
                     command=on_record_button_press)
