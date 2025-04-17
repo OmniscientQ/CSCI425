@@ -3,3 +3,11 @@
 *.tmp
 *.o
 recorded.*
+
+puremath/bin/
+puremath/include/
+puremath/lib/
+puremath/lib64/
+puremath/share/
+*.mp3
+*.png
