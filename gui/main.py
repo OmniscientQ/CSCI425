@@ -1,6 +1,12 @@
 '''
 A basic GUI for model execution
 Jordan Dehmel, 2025, MIT license
+
+Inexplicably, you have to run with pavucontrol as follows:
+`pavucontrol & python3 gui/main.py`
+
+If you don't you'll get all zeros from the mic. I have no idea
+why that is true: pavucontrol is just a volume manager.
 '''
 
 from typing import Optional
@@ -228,34 +234,41 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
 
             audio_data = []
 
-            def callback(indata, _, __, ___):
+            def callback(indata, _, __, status):
                 nonlocal audio_data
-                audio_data.append(indata)
+                audio_data.append(indata.copy())
 
-            with sd.InputStream(callback=callback) as strm:
+                if status:
+                    print(status)
 
-                def on_stop_button_press():
-                    nonlocal audio_data
+            strm = sd.InputStream(callback=callback)
 
-                    strm.close()
-                    recording_path = 'recorded.wav'
+            def on_stop_button_press():
+                nonlocal audio_data, strm
 
-                    audio_data = np.concat(audio_data)
-                    write(recording_path, 44100, audio_data)
+                strm.stop()
+                strm.close()
+                del strm
 
-                    image_path = audio_to_png(recording_path)
+                recording_path = 'recorded.wav'
 
-                    self.__results_page(image_path)
+                audio_data = np.concat(audio_data)
+                write(recording_path, 44100, audio_data)
+                image_path = audio_to_png(recording_path, True)
 
-                    # Clean up local data
-                    if path.exists(recording_path):
-                        remove(recording_path)
+                self.__results_page(image_path)
 
-                    if path.exists(image_path):
-                        remove(image_path)
+                # Clean up local data
+                if path.exists(recording_path):
+                    remove(recording_path)
 
-                self.Button(text='Stop recording',
-                            command=on_stop_button_press)
+                if path.exists(image_path):
+                    remove(image_path)
+
+            self.Button(text='Stop recording',
+                        command=on_stop_button_press)
+
+            strm.start()
 
         self.Label(text='Analyze new recording')
 
