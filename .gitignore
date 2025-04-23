@@ -11,3 +11,5 @@ puremath/lib64/
 puremath/share/
 *.mp3
 *.png
+*.dill
+*.pickle

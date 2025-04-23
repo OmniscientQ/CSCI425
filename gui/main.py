@@ -12,46 +12,14 @@ why that is true: pavucontrol is just a volume manager.
 from typing import Optional
 from os import path, remove
 from tkinter import filedialog
-from matplotlib import pyplot as plt
 import numpy as np
 import librosa
 import keras
+import dill
 # Teenage Kutant Minja Turtles
 import TKinterModernThemes as TKMT
 import sounddevice as sd
 from scipy.io.wavfile import write
-
-
-def audio_to_png(filename: str, overwrite: bool = False) -> str:
-    '''
-    If the given mp3 file does not already have a saved
-    spectrograph image, creates it. Either way, returns the path
-    of the image.
-    :param filename: The mp3 file to convert
-    :param overwrite: If true, never fetches from cache
-    :returns: The filepath of the spectograph version
-    '''
-
-    out: str = filename + '.png'
-    if path.exists(out) and not overwrite:
-        return out
-
-    x, sample_rate = librosa.load(
-        filename, res_type='kaiser_fast')
-    s = librosa.feature.melspectrogram(y=x, sr=sample_rate)
-
-    plt.clf()
-
-    librosa.display.specshow(
-        librosa.power_to_db(s, ref=np.max), x_axis='time',
-        y_axis='mel', fmin=50, fmax=280, cmap='gray')
-
-    plt.gcf().set_dpi(64)
-    plt.gca().set_position((0, 0, 1, 1))
-
-    plt.savefig(out)
-
-    return out
 
 
 class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
@@ -69,6 +37,11 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
 
         self.__model_filepath: Optional[str] = None
         self.__model: Optional[keras.models.Model] = None
+
+        # If provided, is a function mapping raw audio input to
+        # a tensor to be processed by the model. This is loaded
+        # from a pickle.
+        self.__preprocessor_fn = lambda x: x
 
         self.__about_text: str = (
             'This project was made as a learning\n'
@@ -133,9 +106,25 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
             self.__model_filepath = filedialog.askopenfilename(
                 filetypes=[('Keras Models', '*.keras')])
 
+        def on_preprocessor_load_button_pushed():
+            '''
+            Callback lambda for loading preprocessors
+            '''
+
+            fp = filedialog.askopenfilename(filetypes=[
+                ('Dill Pickles', '*.dill')])
+
+            with open(fp, 'rb') as f:
+                self.__preprocessor_fn = \
+                    dill.load(f)
+
         self.Button(
-            text='Select model',
+            text='Select model (required)',
             command=on_model_load_button_pushed)
+
+        self.Button(
+            text='Select preprocessor (depends on model)',
+            command=on_preprocessor_load_button_pushed)
 
         self.Button(
             text='Use existing audio file',
@@ -165,12 +154,11 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
             self.__model = \
                 keras.models.load_model(self.__model_filepath)
 
-    def __results_page(self, image_filepath) -> None:
-        x = [keras.preprocessing.image.img_to_array(
-                keras.preprocessing.image.load_img(
-                    image_filepath,
-                    target_size=(64, 64)))]
+    def __results_page(self, audio_filepath) -> None:
+        x, sample_rate = \
+            librosa.load(audio_filepath, res_type='kaiser_fast')
 
+        x = self.__preprocessor_fn(x, sample_rate)
         y_pred = self.__model.predict(np.array(x))
 
         # From OneHotEncoder:
@@ -208,7 +196,7 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
 
             self.__clear()
             self.Label(text='Processing...')
-            self.__results_page(audio_to_png(input_filepath))
+            self.__results_page(input_filepath)
 
         self.Label(text='Load existing audio clip')
 
@@ -255,16 +243,11 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
 
                 audio_data = np.concat(audio_data)
                 write(recording_path, 44100, audio_data)
-                image_path = audio_to_png(recording_path, True)
-
-                self.__results_page(image_path)
+                self.__results_page(recording_path)
 
                 # Clean up local data
                 if path.exists(recording_path):
                     remove(recording_path)
-
-                if path.exists(image_path):
-                    remove(image_path)
 
             self.Button(text='Stop recording',
                         command=on_stop_button_press)
