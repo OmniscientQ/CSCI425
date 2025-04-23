@@ -155,6 +155,12 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
                 keras.models.load_model(self.__model_filepath)
 
     def __results_page(self, audio_filepath) -> None:
+        '''
+        Given some pre-recorded audio file, analyze and predict
+        using established settings.
+        :param audio_filepath: The audio file to analyze
+        '''
+
         x, sample_rate = \
             librosa.load(audio_filepath, res_type='kaiser_fast')
 
@@ -189,6 +195,10 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
         self.__clear()
 
         def on_file_load_button_pressed():
+            '''
+            Called when the user presses the "load file" button
+            '''
+
             input_filepath = filedialog.askopenfilename(
                 filetypes=[
                     ('mp3 files', '*.mp3'),
@@ -218,12 +228,23 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
         self.__clear()
 
         def on_record_button_press():
+            '''
+            Starts the recording process, to be ended when the
+            user presses the "end recording" button
+            '''
+
             self.__clear()
             self.Label(text='Recording...')
 
             audio_data = []
 
             def callback(indata, _, __, status):
+                '''
+                Used for data streaming via the sounddevice
+                package. Input microphone data is streamed here
+                to be logged.
+                '''
+
                 nonlocal audio_data
                 audio_data.append(indata.copy())
 
@@ -233,6 +254,11 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
             strm = sd.InputStream(callback=callback)
 
             def on_stop_button_press():
+                '''
+                Halts recording when the user presses "stop
+                recording"
+                '''
+
                 nonlocal audio_data, strm
 
                 strm.stop()
