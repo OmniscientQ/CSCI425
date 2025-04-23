@@ -41,7 +41,7 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
         # If provided, is a function mapping raw audio input to
         # a tensor to be processed by the model. This is loaded
         # from a pickle.
-        self.__preprocessor_fn = lambda x: x
+        self.__preprocessor_fn = lambda x, sample_rate: x
 
         self.__about_text: str = (
             'This project was made as a learning\n'
