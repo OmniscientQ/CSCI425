@@ -3,17 +3,22 @@ Saves the CNN preprocessor as a dill pickle file for GUI
 loading.
 '''
 
+from typing import Tuple
 from os import path
 import keras
 import librosa
+import numpy as np
 from matplotlib import pyplot as plt
 from dill import dump
 
 
-def preproc_jordan(x, sample_rate):
+model = keras.models.load_model('../trained_cnn.keras')
+
+
+def preproc_jordan(x, sample_rate) -> Tuple[float, float, float]:
     '''
     Preprocessing for Jordan's CNN model. Maps raw audio data to
-    a tensor for model input.
+    a 3-tuple for predictions (f, m, nb)
     '''
 
     counter: int = 0
@@ -38,7 +43,9 @@ def preproc_jordan(x, sample_rate):
                 out,
                 target_size=(64, 64)))]
 
-    return x
+    y_pred = model.predict(np.array(x))
+
+    return y_pred[0]
 
 
 if __name__ == '__main__':

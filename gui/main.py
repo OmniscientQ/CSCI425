@@ -9,12 +9,10 @@ If you don't you'll get all zeros from the mic. I have no idea
 why that is true: pavucontrol is just a volume manager.
 '''
 
-from typing import Optional
 from os import path, remove
 from tkinter import filedialog
 import numpy as np
 import librosa
-import keras
 import dill
 # Teenage Kutant Minja Turtles
 import TKinterModernThemes as TKMT
@@ -35,13 +33,11 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
 
         super().__init__('Voice GUI', 'park', 'light')
 
-        self.__model_filepath: Optional[str] = None
-        self.__model: Optional[keras.models.Model] = None
-
-        # If provided, is a function mapping raw audio input to
-        # a tensor to be processed by the model. This is loaded
-        # from a pickle.
-        self.__preprocessor_fn = lambda x, sample_rate: x
+        # The function mapping raw input data and a sample rate
+        # to a 3-tuple with confidences for (f, n, nb) IN THAT
+        # ORDER
+        self.__predictor_fn = \
+            lambda x, sample_rate: (0.0, 0.0, 0.0)
 
         self.__about_text: str = (
             'This project was made as a learning\n'
@@ -71,9 +67,6 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
         print(val)
         self.Label(text=val)
 
-        self.__model = None
-        self.__model_filepath = None
-
         self.Button(
             text='Back', command=self.__main_screen)
         self.Button(
@@ -97,15 +90,6 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
 
         self.Label(text='Gender Classification ML Project')
 
-        def on_model_load_button_pushed():
-            '''
-            Callback lambda for loading new models
-            '''
-
-            self.__model = None
-            self.__model_filepath = filedialog.askopenfilename(
-                filetypes=[('Keras Models', '*.keras')])
-
         def on_preprocessor_load_button_pushed():
             '''
             Callback lambda for loading preprocessors
@@ -115,15 +99,10 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
                 ('Dill Pickles', '*.dill')])
 
             with open(fp, 'rb') as f:
-                self.__preprocessor_fn = \
-                    dill.load(f)
+                self.__predictor_fn = dill.load(f)
 
         self.Button(
-            text='Select model (required)',
-            command=on_model_load_button_pushed)
-
-        self.Button(
-            text='Select preprocessor (depends on model)',
+            text='Select predictor (required)',
             command=on_preprocessor_load_button_pushed)
 
         self.Button(
@@ -138,22 +117,6 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
             text='About',
             command=self.__about_page)
 
-    def __load_model(self) -> None:
-        '''
-        Shows a loading screen, loads the model, then returns.
-        This halts all other execution until it finishes!
-        '''
-
-        assert self.__model_filepath is not None, \
-            'Select a model first!'
-
-        if self.__model is None:
-            self.__clear()
-            self.Label(text='Loading model...')
-
-            self.__model = \
-                keras.models.load_model(self.__model_filepath)
-
     def __results_page(self, audio_filepath) -> None:
         '''
         Given some pre-recorded audio file, analyze and predict
@@ -164,12 +127,11 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
         x, sample_rate = \
             librosa.load(audio_filepath, res_type='kaiser_fast')
 
-        x = self.__preprocessor_fn(x, sample_rate)
-        y_pred = self.__model.predict(np.array(x))
+        y_pred = self.__predictor_fn(x, sample_rate)
 
         # From OneHotEncoder:
         # 'female' 'male' 'non-binary'
-        f, m, nb = y_pred[0]
+        f, m, nb = y_pred
         f = round(100.0 * f)
         m = round(100.0 * m)
         nb = round(100.0 * nb)
@@ -191,7 +153,6 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
         The page where you load a pre-existing audio file
         '''
 
-        self.__load_model()
         self.__clear()
 
         def on_file_load_button_pressed():
@@ -224,7 +185,6 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
         it classified
         '''
 
-        self.__load_model()
         self.__clear()
 
         def on_record_button_press():
