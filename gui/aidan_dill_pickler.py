@@ -1,6 +1,6 @@
 '''
-Saves the CNN preprocessor as a dill pickle file for GUI
-loading.
+Saves the normal NN preprocessor+model as a dill pickle file for
+GUI loading.
 '''
 
 from typing import Tuple
@@ -12,12 +12,12 @@ from matplotlib import pyplot as plt
 from dill import dump
 
 
-model = keras.models.load_model('../trained_cnn.keras')
+model = keras.models.load_model('../trained_nn.keras')
 
 
-def preproc_jordan(x, sample_rate) -> Tuple[float, float, float]:
+def preproc_aidan(x, sample_rate) -> Tuple[float, float, float]:
     '''
-    Preprocessing for Jordan's CNN model. Maps raw audio data to
+    Preprocessing for Aidan's NN model. Maps raw audio data to
     a 3-tuple for predictions (f, m, nb)
     '''
 
@@ -49,5 +49,5 @@ def preproc_jordan(x, sample_rate) -> Tuple[float, float, float]:
 
 
 if __name__ == '__main__':
-    with open('cnn_model.dill', 'wb') as f:
-        dump(preproc_jordan, f, recurse=True)
+    with open('nn_model.dill', 'wb') as f:
+        dump(preproc_aidan, f, recurse=True)
