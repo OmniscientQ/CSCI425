@@ -110,3 +110,23 @@ model will be able to provide realtime feedback.
     - This brings us from ~100GB to ~1GB: Much better
         - We will perform all further operations on this
             smaller, more representative, dataset
+
+# Creating Models and Running the GUI
+
+In order to use the GUI, you must first create the models (e.g.
+`./trained_cnn.keras`) locally. This can be done by simply
+running all the cells in the model Jupyter notebooks.
+
+After running the Jupyter notebooks, the models should be saved
+locally: However, this does not necessarily mean that the GUI
+will work yet! First, you must run
+`python3 gui/aidan_dill_pickler.py` and
+`python3 gui/jordan_dill_pickler.py` to create local `dill`
+files of the models. While `.keras` files are the actual models
+themselves, `.dill` archives represent arbitrary Python
+functions and thus allow any needed preprocessing (e.g.
+converting audio data to Mel-spectrogram).
+
+The GUI expects models to be of the `*.dill` form as created by
+the dill pickler scripts. Therefore, if no `dill` archives
+exist, the GUI will have nothing to load.
