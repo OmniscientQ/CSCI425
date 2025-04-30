@@ -83,7 +83,7 @@ def runModels(df):
     scaler = RobustScaler()
     # scaler = StandardScaler()
 
-    X_train_scaled = scaler.fit_transform(X_train)q
+    X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
     feature_names = poly.get_feature_names_out(X.columns)
 
@@ -142,5 +142,5 @@ def runModels(df):
 
 if __name__ == "__main__":
     df = prep_data()
-    # runVis(df)
+    runVis(df)
     runModels(df)

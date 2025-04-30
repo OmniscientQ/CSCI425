@@ -48,11 +48,11 @@ def estimate_vocal_features(y, sr):
                 f2_vals.append(f2)
         except np.linalg.LinAlgError:
             continue
-
+    """
     L_vals = reject_outliers(L_vals)
     f1_vals = reject_outliers(f1_vals)
     f2_vals = reject_outliers(f2_vals)
-
+    """
     return summarize(L_vals, f1_vals, f2_vals)
 
 
@@ -89,6 +89,6 @@ def summarize(L, f1, f2):
         "std_f1": stats(f1)["std"],
         "mean_f2": stats(f2)["mean"],
         "std_f2": stats(f2)["std"],
-        "mean_f2_f1": np.mean(np.array(f2) / np.array(f1)) if len(f1) == len(f2) and len(f1) > 0 else np.nan,
-        "std_f2_f1": np.std(np.array(f2) / np.array(f1)) if len(f1) == len(f2) and len(f1) > 0 else np.nan
+        "mean_f2_f1": np.mean(np.array(f2) / np.array(f1)),
+        "std_f2_f1": np.std(np.array(f2) / np.array(f1))
     }
