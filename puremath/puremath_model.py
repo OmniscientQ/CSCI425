@@ -83,11 +83,11 @@ def runModels(df):
     scaler = RobustScaler()
     # scaler = StandardScaler()
 
-    X_train_scaled = scaler.fit_transform(X_train)
+    X_train_scaled = scaler.fit_transform(X_train)q
     X_test_scaled = scaler.transform(X_test)
     feature_names = poly.get_feature_names_out(X.columns)
 
-    """
+    """    
     # Logistic Regresssion attempt - 0.69 accuracy
     clf = LogisticRegression()
     clf.fit(X_train_scaled, y_train)
@@ -95,15 +95,17 @@ def runModels(df):
     coefficients = clf.coef_[0]
 
     y_pred = clf.predict(X_test_scaled)
+    """
 
-
+    """
     # Random Forest attempt - 0.71 accuracy
     clf = RandomForestClassifier(n_estimators=100, random_state=42)
 
     clf.fit(X_train_scaled, y_train)
 
-    y_pred_rf = clf.predict(X_test_scaled)
+    y_pred = clf.predict(X_test_scaled)
     """
+
 
     # XG Boost classifier - 0.71 accuracy
     clf = xgb.XGBClassifier(
@@ -118,10 +120,13 @@ def runModels(df):
 
     y_pred = clf.predict(X_test_scaled)
 
+    y_probs = clf.predict_proba
+
 
     # Output section
     print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
     print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
 
     importances = clf.feature_importances_
     importance_df = pd.DataFrame({
@@ -132,8 +137,10 @@ def runModels(df):
     print("\nTop 20 Most Important Features (XGBoost):")
     print(importance_df.head(20).to_string(index=False))
 
+    clf.save_model("XGBoost.model")
+
 
 if __name__ == "__main__":
     df = prep_data()
-    runVis(df)
-    # runModels(df)
+    # runVis(df)
+    runModels(df)
