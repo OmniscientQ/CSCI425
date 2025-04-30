@@ -144,6 +144,18 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
         self.Label(text=f'Male: {m}%')
         self.Label(text=f'Nonbinary: {f}%')
 
+        def play_callback():
+            '''
+            Callback to play audio
+            '''
+
+            sd.check_output_settings()
+            sd.play(x, samplerate=sample_rate, blocking=True)
+
+        self.Button(
+            text='Play',
+            command=play_callback)
+
         self.Button(
             text='Back',
             command=self.__main_screen)
@@ -193,6 +205,7 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
             user presses the "end recording" button
             '''
 
+            sd.check_input_settings()
             self.__clear()
             self.Label(text='Recording...')
 
