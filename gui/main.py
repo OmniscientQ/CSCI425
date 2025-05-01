@@ -19,6 +19,9 @@ import TKinterModernThemes as TKMT
 import sounddevice as sd
 from scipy.io.wavfile import write
 
+# If 4 or higher, deep voice. If 1 or 2, Alvin and the Chipmunks
+ALVINIZER: float = 3.0
+
 
 class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
     '''
@@ -95,8 +98,9 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
             Callback lambda for loading preprocessors
             '''
 
-            fp = filedialog.askopenfilename(filetypes=[
-                ('Dill Pickles', '*.dill')])
+            fp = filedialog.askopenfilename(
+                filetypes=[('Dill Pickles', '*.dill')],
+                initialdir=path.join(path.curdir, 'gui'))
 
             with open(fp, 'rb') as f:
                 self.__predictor_fn = dill.load(f)
@@ -149,8 +153,21 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
             Callback to play audio
             '''
 
-            sd.check_output_settings()
-            sd.play(x, samplerate=sample_rate, blocking=True)
+            # Fix sample so it's playable
+            # (the stream thing only takes 44100)
+            sr = sample_rate
+            to_play = x
+            while sr < 44100:
+                new_x = np.zeros(len(to_play) * 2)
+                for i, item in enumerate(to_play):
+                    new_x[2 * i] = item
+                    new_x[2 * i + 1] = item
+                sr *= 2
+                print(f'Upsampled to {sr}')
+                to_play = new_x
+
+            sd.stop()
+            sd.play(to_play, blocking=True)
 
         self.Button(
             text='Play',
@@ -175,7 +192,8 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
             input_filepath = filedialog.askopenfilename(
                 filetypes=[
                     ('mp3 files', '*.mp3'),
-                    ('wav files', '*.wav')])
+                    ('wav files', '*.wav')],
+                initialdir='/home/jorb/voice-data/en/clips')
 
             self.__clear()
             self.Label(text='Processing...')
@@ -205,7 +223,6 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
             user presses the "end recording" button
             '''
 
-            sd.check_input_settings()
             self.__clear()
             self.Label(text='Recording...')
 
@@ -224,6 +241,7 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
                 if status:
                     print(status)
 
+            sd.stop()
             strm = sd.InputStream(callback=callback)
 
             def on_stop_button_press():
@@ -241,7 +259,8 @@ class GenderClassifierGUI(TKMT.ThemedTKinterFrame):
                 recording_path = 'recorded.wav'
 
                 audio_data = np.concat(audio_data)
-                write(recording_path, 44100, audio_data)
+                write(recording_path,
+                      round(44100 / ALVINIZER), audio_data)
                 self.__results_page(recording_path)
 
                 # Clean up local data

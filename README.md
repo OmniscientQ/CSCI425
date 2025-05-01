@@ -2,6 +2,13 @@
 
 Python Machine Learning Project
 
+> "Absolutely despicable that gingerbread men are forced to live
+> in houses made of their own flesh."
+
+> "Before guns were invented, armies had to throw bullets at
+> each other and if a bullet touched you, you had to sit out
+> until the next war."
+
 ## Project Members
 
 Jordan Dehmel
