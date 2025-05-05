@@ -62,6 +62,23 @@ model will be able to provide realtime feedback.
 
 ## Aidan
 
+ Criteria                                    | Score (1-5)
+---------------------------------------------|------------------
+ Clearly defined problem statement           | 5
+ Understanding of the domain and context     | 5
+ Data cleaning and handling missing values   | 4
+ Feature engineering and selection           | 5
+ Data normalization and scaling              | 5
+ Selection of appropriate ML algorithms      | 5
+ Model training and tuning                   | 4
+ Evaluation metrics and performance analysis | 4
+ Novelty and originality of approach         | 5
+ Exploration of advanced techniques          | 5
+ Quality of visualizations and insights      | 4
+ Ability to communicate results effectively  | 4
+
+ **Final Score:** 55/60
+ 
 ## Evelyn
 
 ---
