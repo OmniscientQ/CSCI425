@@ -3,11 +3,11 @@
 Python Machine Learning Project
 
 > "Absolutely despicable that gingerbread men are forced to live
-> in houses made of their own flesh."
+> in houses made of their own flesh." -At least 10 samples
 
 > "Before guns were invented, armies had to throw bullets at
 > each other and if a bullet touched you, you had to sit out
-> until the next war."
+> until the next war." -At least 5 samples
 
 ## Project Members
 
@@ -33,6 +33,38 @@ the Mozilla Common Voice Data Set. The model produced will be
 useful primarily in helping transgender users to learn to use
 their voices in ways that match their proper gender, as the
 model will be able to provide realtime feedback.
+
+# Judge Grades
+
+![](judge-scores/1.jpg)
+![](judge-scores/2.jpg)
+
+# Self-Grading
+
+## Jordan
+
+ Criteria                                    | Score (1-5)
+---------------------------------------------|------------------
+ Clearly defined problem statement           | 5
+ Understanding of the domain and context     | 5
+ Data cleaning and handling missing values   | 5
+ Feature engineering and selection           | 5
+ Data normalization and scaling              | 5
+ Selection of appropriate ML algorithms      | 5
+ Model training and tuning                   | 4
+ Evaluation metrics and performance analysis | 3
+ Novelty and originality of approach         | 4
+ Exploration of advanced techniques          | 5
+ Quality of visualizations and insights      | 4
+ Ability to communicate results effectively  | 4
+
+**Final score:** 54/60
+
+## Aidan
+
+## Evelyn
+
+---
 
 # Process Description / Log
 
@@ -117,6 +149,7 @@ model will be able to provide realtime feedback.
     - This brings us from ~100GB to ~1GB: Much better
         - We will perform all further operations on this
             smaller, more representative, dataset
+- Then we plug our refined datasets to our models
 
 # Creating Models and Running the GUI
 
